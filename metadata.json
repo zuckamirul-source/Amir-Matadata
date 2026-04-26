@@ -1,0 +1,11 @@
+{
+  "name": "Amir Matadata",
+  "description": "Professional AI-powered tool for photographers to generate SEO-optimized titles, descriptions, and high-ranking keywords for stock marketplaces like Shutterstock",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "AI Image Analysis",
+    "Stock Metadata Generation",
+    "Batch CSV/JSON Export",
+    "Keyword Optimization"
+  ]
+}
