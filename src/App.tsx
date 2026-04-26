@@ -15,7 +15,8 @@ import {
   Sun,
   Moon,
   ExternalLink,
-  User
+  User,
+  Key
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
@@ -36,6 +37,12 @@ export default function App() {
   const [images, setImages] = useState<ImageMetadata[]>([]);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('USER_GEMINI_API_KEY') || '');
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+
+  React.useEffect(() => {
+    localStorage.setItem('USER_GEMINI_API_KEY', apiKey);
+  }, [apiKey]);
 
   const selectedImage = useMemo(() => 
     images.find(img => img.id === selectedImageId), 
@@ -75,7 +82,7 @@ export default function App() {
       reader.readAsDataURL(file);
       const base64Data = await base64Promise;
 
-      const metadata = await analyzeImage(base64Data, file.type);
+      const metadata = await analyzeImage(base64Data, file.type, apiKey);
       
       setImages(prev => prev.map(img => 
         img.id === id ? { ...img, status: 'completed', data: metadata } : img
@@ -194,6 +201,42 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-4 ml-auto">
+            <div className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setShowApiKeyInput(!showApiKeyInput)} 
+                className={cn("hover:bg-slate-800 transition-colors", apiKey && "text-indigo-400")}
+              >
+                <Key className="w-4 h-4" />
+              </Button>
+              
+              <AnimatePresence>
+                {showApiKeyInput && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 top-full mt-2 w-64 glass-panel p-4 rounded-xl shadow-2xl z-[60] border-slate-700"
+                  >
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 block">
+                      Custom Gemini API Key
+                    </label>
+                    <input 
+                      type="password"
+                      placeholder="Paste key here..."
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:ring-1 focus:ring-indigo-500/50 outline-none mb-2"
+                    />
+                    <p className="text-[9px] text-slate-500 leading-relaxed">
+                      If provided, this key will be used for image analysis. Leave blank to use system default.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <Button variant="ghost" size="icon" onClick={() => setIsDarkMode(!isDarkMode)} className="hover:bg-slate-800 transition-colors">
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
             </Button>

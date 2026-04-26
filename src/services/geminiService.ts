@@ -1,8 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeneratedMetadata } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
-
 const metadataSchema = {
   type: Type.OBJECT,
   properties: {
@@ -64,7 +62,9 @@ const metadataSchema = {
   required: ["title", "description", "keywords", "categories", "isEditorial", "isMature", "isIllustration", "analysis"],
 };
 
-export async function analyzeImage(base64Data: string, mimeType: string): Promise<GeneratedMetadata> {
+export async function analyzeImage(base64Data: string, mimeType: string, customApiKey?: string): Promise<GeneratedMetadata> {
+  const apiKey = customApiKey || (process.env.GEMINI_API_KEY as string);
+  const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3-flash-preview";
   
   const prompt = `Analyze this image for global stock marketplaces (Shutterstock, Adobe Stock, Freepik). 
